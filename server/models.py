@@ -62,6 +62,9 @@ class RestaurantPizza(db.Model, SerializerMixin):
     # add serialization rules
     serialize_rules = ('-restaurant', '-pizza',)
 
+    def __repr__(self):
+        return f"<RestaurantPizza {self.price}>"
+
     # add validation
     @validates('price')
     def validate_price(self, key, value):

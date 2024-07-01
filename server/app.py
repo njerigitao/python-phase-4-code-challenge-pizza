@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 from models import db, Restaurant, RestaurantPizza, Pizza
 from flask_migrate import Migrate
 from flask import Flask, request, make_response
@@ -70,26 +71,57 @@ def get_pizzas():
         pizzas, 
         200
     )
-
     return response
 
 @app.route('/restaurant_pizzas', methods=['POST'])
-def restaurant_pizzas():
-    new_restaurant_pizza = RestaurantPizza(
-        price=request.form.get("price"),
-        restaurant_id=request.form.get("restaurant_id"),
-        pizza_id=request.form.get("pizza_id"),
-    )
+def create_restaurant_pizza():
+        price=request.form.get("price")
+        restaurant_id=request.form.get("restaurant_id")
+        pizza_id=request.form.get("pizza_id")
 
-    if new_restaurant_pizza:
+        if not(price and pizza_id and restaurant_id):
+            return {'errors': ['All fields are required']}, 400
+        
+        if not (price.isdigit() and pizza_id.isdigit() and restaurant_id.isdigit()):
+            return {'errors': ['Price, pizza_id, and restaurant_id must be integers']}, 400
+        
+        price = int(price)
+        pizza_id = int(pizza_id)
+        restaurant_id = int(restaurant_id)
 
-       db.session.add(new_restaurant_pizza)
-       db.session.commit()
-       response = make_response(new_restaurant_pizza.to_dict(), 201)
-    else:
-        response = make_response({"errors": "validation errors" }, 400)
-    
-    return response
+        if price < 1 or price > 30:
+            return {'errors': ['Price must be between 1 and 30']}, 400
+        
+        pizza = Pizza.query.get(pizza_id)
+        restaurant = Restaurant.query.get(restaurant_id)
+
+        if not pizza:
+            return {'errors': ['Pizza not found']}, 404
+        if not restaurant:
+            return {'errors': ['Restaurant not found']}, 404
+        
+        restaurant_pizza = RestaurantPizza(
+            price=price,
+            pizza_id=pizza_id,
+            restaurant_id=restaurant_id
+        )
+
+        db.session.add(restaurant_pizza)
+        db.session.commit()
+
+        restaurant_pizzas = {
+            "id": restaurant_pizza.id,
+            "pizza": pizza.to_dict(),
+            "pizza_id": restaurant_pizza.pizza_id,
+            "price": restaurant_pizza.price,
+            "restaurant": restaurant.to_dict(),
+            "restaurant_id": restaurant_pizza.restaurant_id
+        }
+        response = make_response(
+            restaurant_pizzas,
+            201
+        )
+        return response
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
