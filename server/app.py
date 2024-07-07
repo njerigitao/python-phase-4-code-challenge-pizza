@@ -27,46 +27,24 @@ def index():
 
 @app.route('/restaurants', methods=['GET'])
 def get_restaurants():
-    restaurants = Restaurant.query.all()
-    restaurant_list = []
-    for restaurant in restaurants:
-        restaurant_data = {
-            "id": restaurant.id,
-            "name": restaurant.name,
-            "address": restaurant.address
-        }
-        restaurant_list.append(restaurant_data)
-    return jsonify(restaurant_list)
+    restaurants = [restaurant.to_dict() for restaurant in Restaurant.query.all()]
+    response = make_response(
+        restaurants,
+        200
+    )
+    return response
    
 @app.route('/restaurants/<int:id>', methods=['GET'])
 def restaurant_by_id(id):
-    restaurant = db.session.get(Restaurant, id)
-    if not restaurant:
-        response = make_response({"error": "Restaurant not found"}), 404
-        return response
-    
-    restaurant_pizzas = RestaurantPizza.query.filter_by(restaurant_id=id).all()
-    pizza_details = []
-    for restaurantpizza in restaurant_pizzas:
-        pizza_details.append({
-            "id": restaurantpizza.id,
-            "pizza": {
-                "id": restaurantpizza.pizza.id,
-                "name": restaurantpizza.pizza.name,
-                "ingredients": restaurantpizza.ingredients
-            },
-            "pizza_id": restaurantpizza.pizza_id,
-            "price": restaurantpizza.price,
-            "restaurant_id": restaurantpizza.restaurant_id
-        })
+    restaurant = Restaurant.query.filter(Restaurant.id == id).first()
 
-        restaurant_data = {
-            "id": restaurant.id,
-            "name": restaurant.name,
-            "address": restaurant.address,
-            "restaurant_pizzas": pizza_details
-        }
-        return jsonify(restaurant_data)
+    if restaurant:
+        response = make_response(
+            restaurant.to_dict(),
+            200
+        )
+    else:
+        response = make_response
     
 
 @app.route('/restaurants/<int:id>', methods=['DELETE'])
