@@ -44,7 +44,11 @@ def restaurant_by_id(id):
             200
         )
     else:
-        response = make_response
+        response = make_response(
+            {"error": "Restaurant not found"},
+            404
+        )
+    return response
     
 
 @app.route('/restaurants/<int:id>', methods=['DELETE'])
@@ -64,16 +68,12 @@ def delete_restaurant(id):
 
 @app.route('/pizzas', methods=['GET'])
 def get_pizzas():
-    pizzas = Pizza.query.all()
-    pizza_list = []
-    for pizza in pizzas:
-        pizza_data = {
-            "id": pizza.id,
-            "name": pizza.name,
-            "ingredients": pizza.ingredients       
-        }
-        pizza_list.append(pizza_data)
-    return jsonify(pizza_list)
+    pizzas = [pizza.to_dict() for pizza in Pizza.query.all()]
+    response = make_response(
+        pizzas,
+        200
+    )
+    return response
 
 @app.route('/restaurant_pizzas', methods=['POST'])
 def create_restaurant_pizza():
