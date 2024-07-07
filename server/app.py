@@ -21,140 +21,140 @@ db.init_app(app)
 api = Api(app)
 
 
-# @app.route("/")
-# def index():
-#     return "<h1>Code challenge</h1>"
+@app.route("/")
+def index():
+    return "<h1>Code challenge</h1>"
 
-# @app.route('/restaurants', methods=['GET'])
-# def get_restaurants():
-#     restaurants = Restaurant.query.all()
-#     restaurant_list = []
-#     for restaurant in restaurants:
-#         restaurant_data = {
-#             "id": restaurant.id,
-#             "name": restaurant.name,
-#             "address": restaurant.address
-#         }
-#         restaurant_list.append(restaurant_data)
-#     return jsonify(restaurant_list)
+@app.route('/restaurants', methods=['GET'])
+def get_restaurants():
+    restaurants = Restaurant.query.all()
+    restaurant_list = []
+    for restaurant in restaurants:
+        restaurant_data = {
+            "id": restaurant.id,
+            "name": restaurant.name,
+            "address": restaurant.address
+        }
+        restaurant_list.append(restaurant_data)
+    return jsonify(restaurant_list)
    
-# @app.route('/restaurants/<int:id>', methods=['GET'])
-# def restaurant_by_id(id):
-#     restaurant = db.session.get(Restaurant, id)
-#     if not restaurant:
-#         response = make_response({"error": "Restaurant not found"}), 404
-#         return response
+@app.route('/restaurants/<int:id>', methods=['GET'])
+def restaurant_by_id(id):
+    restaurant = db.session.get(Restaurant, id)
+    if not restaurant:
+        response = make_response({"error": "Restaurant not found"}), 404
+        return response
     
-#     restaurant_pizzas = RestaurantPizza.query.filter_by(restaurant_id=id).all()
-#     pizza_details = []
-#     for restaurantpizza in restaurant_pizzas:
-#         pizza_details.append({
-#             "id": restaurantpizza.id,
-#             "pizza": {
-#                 "id": restaurantpizza.pizza.id,
-#                 "name": restaurantpizza.pizza.name,
-#                 "ingredients": restaurantpizza.ingredients
-#             },
-#             "pizza_id": restaurantpizza.pizza_id,
-#             "price": restaurantpizza.price,
-#             "restaurant_id": restaurantpizza.restaurant_id
-#         })
+    restaurant_pizzas = RestaurantPizza.query.filter_by(restaurant_id=id).all()
+    pizza_details = []
+    for restaurantpizza in restaurant_pizzas:
+        pizza_details.append({
+            "id": restaurantpizza.id,
+            "pizza": {
+                "id": restaurantpizza.pizza.id,
+                "name": restaurantpizza.pizza.name,
+                "ingredients": restaurantpizza.ingredients
+            },
+            "pizza_id": restaurantpizza.pizza_id,
+            "price": restaurantpizza.price,
+            "restaurant_id": restaurantpizza.restaurant_id
+        })
 
-#         restaurant_data = {
-#             "id": restaurant.id,
-#             "name": restaurant.name,
-#             "address": restaurant.address,
-#             "restaurant_pizzas": pizza_details
-#         }
-#         return jsonify(restaurant_data)
+        restaurant_data = {
+            "id": restaurant.id,
+            "name": restaurant.name,
+            "address": restaurant.address,
+            "restaurant_pizzas": pizza_details
+        }
+        return jsonify(restaurant_data)
     
 
-# @app.route('/restaurants/<int:id>', methods=['DELETE'])
-# def delete_restaurant(id):
-#     restaurant = db.session.get(Restaurant, id)
-#     if not restaurant:
-#         return jsonify({"error": "Restaurant not found"}), 404
+@app.route('/restaurants/<int:id>', methods=['DELETE'])
+def delete_restaurant(id):
+    restaurant = db.session.get(Restaurant, id)
+    if not restaurant:
+        return jsonify({"error": "Restaurant not found"}), 404
     
-#     restaurant_pizzas = RestaurantPizza.query.filter_by(restaurant_id=id).all()
-#     for restaurantpizza in restaurant_pizzas:
-#         db.session.delete(restaurantpizza)
+    restaurant_pizzas = RestaurantPizza.query.filter_by(restaurant_id=id).all()
+    for restaurantpizza in restaurant_pizzas:
+        db.session.delete(restaurantpizza)
     
-#     db.session.delete(restaurant)
-#     db.session.commit()
+    db.session.delete(restaurant)
+    db.session.commit()
 
-#     return '', 204
+    return '', 204
 
-# @app.route('/pizzas', methods=['GET'])
-# def get_pizzas():
-#     pizzas = Pizza.query.all()
-#     pizza_list = []
-#     for pizza in pizzas:
-#         pizza_data = {
-#             "id": pizza.id,
-#             "name": pizza.name,
-#             "ingredients": pizza.ingredients       
-#         }
-#         pizza_list.append(pizza_data)
-#     return jsonify(pizza_list)
+@app.route('/pizzas', methods=['GET'])
+def get_pizzas():
+    pizzas = Pizza.query.all()
+    pizza_list = []
+    for pizza in pizzas:
+        pizza_data = {
+            "id": pizza.id,
+            "name": pizza.name,
+            "ingredients": pizza.ingredients       
+        }
+        pizza_list.append(pizza_data)
+    return jsonify(pizza_list)
 
-# @app.route('/restaurant_pizzas', methods=['POST'])
-# def create_restaurant_pizza():
-#     data = request.get_json()
+@app.route('/restaurant_pizzas', methods=['POST'])
+def create_restaurant_pizza():
+    data = request.get_json()
 
-#     price = data.get("price")
-#     pizza_id = data.get("pizza_id")
-#     restaurant_id = data.get("restaurant_id")
+    price = data.get("price")
+    pizza_id = data.get("pizza_id")
+    restaurant_id = data.get("restaurant_id")
 
-#     if not (price and pizza_id and restaurant_id):
-#         return jsonify({"errors": ["validation errors"]}), 400
+    if not (price and pizza_id and restaurant_id):
+        return jsonify({"errors": ["validation errors"]}), 400
     
-#     pizza = db.session.get(Pizza, pizza_id)
-#     restaurant = db.session.get(Restaurant, restaurant_id)
+    pizza = db.session.get(Pizza, pizza_id)
+    restaurant = db.session.get(Restaurant, restaurant_id)
 
-#     if not pizza:
-#         return jsonify({"errors": ["Pizza not found"]}), 404
+    if not pizza:
+        return jsonify({"errors": ["Pizza not found"]}), 404
     
-#     if not restaurant:
-#         return jsonify({"errors": ["Restaurant not found"]}), 404
+    if not restaurant:
+        return jsonify({"errors": ["Restaurant not found"]}), 404
     
-#     try:
-#         validated_price = int(price)
-#         if not (1 <= validated_price <= 30):
-#             return jsonify({"errors": ["validation errors"]}), 400
-#     except ValueError:
-#         return jsonify({"errors": ["validation errors"]}), 400
+    try:
+        validated_price = int(price)
+        if not (1 <= validated_price <= 30):
+            return jsonify({"errors": ["validation errors"]}), 400
+    except ValueError:
+        return jsonify({"errors": ["validation errors"]}), 400
     
-#     new_restaurant_pizza = RestaurantPizza(
-#         price=validated_price,
-#         pizza_id=pizza_id,
-#         restaurant_id=restaurant_id
-#     )
+    new_restaurant_pizza = RestaurantPizza(
+        price=validated_price,
+        pizza_id=pizza_id,
+        restaurant_id=restaurant_id
+    )
 
-#     try:
-#         db.session.add(new_restaurant_pizza)
-#         db.session.commit()
-#     except Exception as e:
-#         db.session.rollback()
-#         return jsonify({"errors": [str(e)]}), 500
+    try:
+        db.session.add(new_restaurant_pizza)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"errors": [str(e)]}), 500
     
-#     response_data = {
-#         "id": new_restaurant_pizza.id,
-#         "pizza": {
-#             "id": pizza.id,
-#             "name": pizza.name,
-#             "ingredients": pizza.ingredients
-#         },
-#         "pizza_id": new_restaurant_pizza.pizza_id,
-#         "price": new_restaurant_pizza.price,
-#         "restaurant": {
-#             "id": restaurant.id,
-#             "name": restaurant.name,
-#             "address": restaurant.address
-#         },
-#         "restaurant_id": new_restaurant_pizza.restaurant_id
-#     }
+    response_data = {
+        "id": new_restaurant_pizza.id,
+        "pizza": {
+            "id": pizza.id,
+            "name": pizza.name,
+            "ingredients": pizza.ingredients
+        },
+        "pizza_id": new_restaurant_pizza.pizza_id,
+        "price": new_restaurant_pizza.price,
+        "restaurant": {
+            "id": restaurant.id,
+            "name": restaurant.name,
+            "address": restaurant.address
+        },
+        "restaurant_id": new_restaurant_pizza.restaurant_id
+    }
 
-#     return jsonify(response_data), 201
+    return jsonify(response_data), 201
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
